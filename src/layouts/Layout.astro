@@ -1,0 +1,349 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+}
+
+const {
+  title = "ClickWar — Real-Time World War Clicker Game | ClickWar.app",
+  description = "Join the ultimate real-time global clicker war! Pledge allegiance to your country, launch missiles, conquer territories, upgrade high-tech weapons, and dominate the global leaderboard on ClickWar.app.",
+  canonical = "https://clickwar.app",
+  ogImage = "https://clickwar.app/og-image.jpg"
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="canonical" href={canonical} />
+  
+  <title>{title}</title>
+  <meta name="title" content={title} />
+  <meta name="description" content={description} />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content={canonical} />
+  <meta property="twitter:title" content={title} />
+  <meta property="twitter:description" content={description} />
+  <meta property="twitter:image" content={ogImage} />
+
+  <!-- Google Fonts: Inter & JetBrains Mono for military tactical readout -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "ClickWar",
+    "url": "https://clickwar.app",
+    "description": description,
+    "genre": ["Clicker Game", "Strategy Game", "Real-Time MMO Simulation"],
+    "gamePlatform": ["Web Browser", "Mobile Browser"],
+    "applicationCategory": "Game",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "ClickWar Global Command"
+    }
+  })} />
+
+  <style is:global>
+    :root {
+      --color-primary: #ef4444;
+      --color-bg: #090d16;
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    
+    body {
+      background-color: #080c14;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.08) 0%, transparent 60%),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(8, 12, 20, 0.95)),
+        radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 28px 28px;
+    }
+
+    .font-display {
+      font-family: var(--font-display);
+    }
+    .font-mono {
+      font-family: var(--font-mono);
+    }
+
+    /* Scanline overlay for tactical war screen */
+    .war-screen::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      z-index: 20;
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    /* Neon glow helpers */
+    .glow-red {
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+    }
+    .glow-amber {
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b1120;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ef4444;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-red-500 selection:text-white">
+
+  <!-- TOP LIVE DEFCON / WAR TICKER -->
+  <div class="w-full bg-red-950/40 border-b border-red-500/20 text-xs py-1.5 px-4 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 font-mono text-slate-400">
+      <div class="flex items-center gap-2 overflow-hidden whitespace-nowrap">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+        </span>
+        <span class="text-red-400 font-bold uppercase tracking-wider">LIVE DEFCON 1:</span>
+        <div id="live-ticker-text" class="text-slate-300 truncate">
+          Global conflict raging across 200+ territories — 1,420,890 missiles fired today!
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center gap-4 text-[11px] font-mono shrink-0">
+        <span class="text-slate-500">SERVER: <strong class="text-emerald-400">GLOBAL MESH</strong></span>
+        <span class="text-slate-500">ACTIVE PILOTS: <strong id="header-active-pilots" class="text-amber-400">2,845</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION HEADER -->
+  <header class="sticky top-0 z-40 w-full bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-amber-600 p-0.5 shadow-lg group-hover:shadow-red-500/30 transition">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+            <svg class="w-6 h-6 text-red-500 group-hover:scale-110 transition duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="font-display font-black text-xl tracking-wider text-white flex items-center gap-1.5">
+            CLICK<span class="text-red-500">WAR</span><span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/40">.APP</span>
+          </div>
+          <div class="text-[10px] font-mono tracking-widest text-slate-400 uppercase -mt-1">Real-Time World War</div>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
+        <a href="/" class={`px-3 py-1.5 rounded-lg transition ${currentPath === '/' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
+          ⚔️ Battle Map
+        </a>
+        <a href="/rankings" class={`px-3 py-1.5 rounded-lg transition ${currentPath === '/rankings' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
+          🏆 Rankings
+        </a>
+        <a href="/weapons" class={`px-3 py-1.5 rounded-lg transition ${currentPath === '/weapons' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
+          🚀 Tech Tree
+        </a>
+        <a href="/how-to-play" class={`px-3 py-1.5 rounded-lg transition ${currentPath === '/how-to-play' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
+          📖 How To Play
+        </a>
+      </nav>
+
+      <!-- Action Tools: Sound Toggle & Quick Join Button -->
+      <div class="flex items-center gap-3">
+        <!-- Sound FX Button -->
+        <button id="btn-sound-toggle" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs font-mono text-slate-300 hover:text-white hover:border-slate-500 transition" title="Toggle Sound FX">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-text" class="hidden sm:inline">SFX ON</span>
+        </button>
+
+        <!-- CTA Launch -->
+        <a href="/#game-viewport" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden rounded-lg font-display font-bold text-xs uppercase tracking-wider text-white shadow-lg group">
+          <span class="absolute inset-0 w-full h-full bg-gradient-to-br from-red-600 via-rose-600 to-amber-600 group-hover:scale-105 transition duration-300"></span>
+          <span class="relative px-3.5 py-1.5 transition-all ease-out bg-slate-950 rounded-[6px] group-hover:bg-opacity-0">
+            💥 FIRE NOW
+          </span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="flex-1 flex flex-col">
+    <slot />
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full bg-slate-950 border-t border-slate-900 pt-12 pb-8 mt-16 text-slate-400 text-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+        
+        <!-- Col 1: About -->
+        <div class="space-y-3 md:col-span-1">
+          <div class="font-display font-black text-lg text-white flex items-center gap-1.5">
+            CLICK<span class="text-red-500">WAR</span><span class="text-[10px] bg-red-500/20 text-red-400 px-1 py-0.5 rounded border border-red-500/30">.APP</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            The next-generation, fast-paced MMO World War Clicker. Fight for your country, launch tactical missiles, conquer opposing continents, and rise to global hegemony.
+          </p>
+          <div class="text-[11px] font-mono text-slate-500">
+            &copy; {new Date().getFullYear()} ClickWar.app. All rights reserved.
+          </div>
+        </div>
+
+        <!-- Col 2: Battlegrounds -->
+        <div>
+          <h4 class="font-display font-bold text-white text-xs uppercase tracking-wider mb-3">Hot Battlegrounds</h4>
+          <ul class="space-y-2 text-xs">
+            <li><a href="/war/united-states" class="hover:text-red-400 transition">🇺🇸 United States Defense</a></li>
+            <li><a href="/war/china" class="hover:text-red-400 transition">🇨🇳 China War Frontier</a></li>
+            <li><a href="/war/russia" class="hover:text-red-400 transition">🇷🇺 Russia Eastern Front</a></li>
+            <li><a href="/war/germany" class="hover:text-red-400 transition">🇩🇪 Germany European Theatre</a></li>
+            <li><a href="/war/japan" class="hover:text-red-400 transition">🇯🇵 Japan Pacific Shield</a></li>
+            <li><a href="/war/brazil" class="hover:text-red-400 transition">🇧🇷 Brazil South America Hub</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Strategy & Weapons -->
+        <div>
+          <h4 class="font-display font-bold text-white text-xs uppercase tracking-wider mb-3">Military Tech</h4>
+          <ul class="space-y-2 text-xs">
+            <li><a href="/weapons#rockets" class="hover:text-amber-400 transition">🚀 Tactical Rockets & Swarms</a></li>
+            <li><a href="/weapons#drones" class="hover:text-amber-400 transition">🛸 Stealth Kamikaze Drones</a></li>
+            <li><a href="/weapons#hypersonic" class="hover:text-amber-400 transition">⚡ Hypersonic Cruise Missiles</a></li>
+            <li><a href="/weapons#nuke" class="hover:text-amber-400 transition">☢️ Tactical Nuclear Warheads</a></li>
+            <li><a href="/weapons#ion" class="hover:text-amber-400 transition">🛰️ Orbital Ion Cannons</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Community & Rules -->
+        <div>
+          <h4 class="font-display font-bold text-white text-xs uppercase tracking-wider mb-3">Commands & Lore</h4>
+          <ul class="space-y-2 text-xs">
+            <li><a href="/how-to-play#combos" class="hover:text-red-400 transition">⚡ Frenzy Multipliers & Combos</a></li>
+            <li><a href="/how-to-play#territory" class="hover:text-red-400 transition">🗺️ Territory Annexation Rules</a></li>
+            <li><a href="/rankings" class="hover:text-red-400 transition">🏅 Top 100 World Superpowers</a></li>
+            <li><a href="/privacy" class="hover:text-slate-300 transition">Privacy & Cookies Policy</a></li>
+            <li><a href="/terms" class="hover:text-slate-300 transition">Terms of Warfare</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="border-t border-slate-900 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+        <div>
+          ClickWar.app is an independent real-time clicker simulation inspired by global geo-strategy games.
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-[11px] text-emerald-400 font-mono">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> SYSTEM NOMINAL
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- GLOBAL SOUND CONTROLLER SCRIPT -->
+  <script>
+    import { soundSystem } from '../lib/sound';
+
+    const btn = document.getElementById('btn-sound-toggle');
+    const icon = document.getElementById('sound-icon');
+    const text = document.getElementById('sound-text');
+
+    if (btn && icon && text) {
+      const updateUI = () => {
+        if (soundSystem.isEnabled()) {
+          icon.textContent = '🔊';
+          text.textContent = 'SFX ON';
+          btn.classList.remove('opacity-60', 'line-through');
+        } else {
+          icon.textContent = '🔇';
+          text.textContent = 'SFX OFF';
+          btn.classList.add('opacity-60');
+        }
+      };
+
+      btn.addEventListener('click', () => {
+        soundSystem.toggle();
+        updateUI();
+      });
+      updateUI();
+    }
+
+    // Dynamic Live Ticker updates
+    const tickerText = document.getElementById('live-ticker-text');
+    const activePilots = document.getElementById('header-active-pilots');
+    
+    const tickerMessages = [
+      "USA launched a 50x tactical missile barrage towards CHINA!",
+      "BRAZIL successfully captured ARGENTINA's primary defense hub!",
+      "RUSSIA activated Orbital Ion Shield over Eastern Sector!",
+      "GERMANY deployed Stealth Drone swarm in European theater!",
+      "INDIA repelled 120,000 incoming cruise missiles!",
+      "JAPAN unlocked DEFCON 1 Frenzy mode (5x multiplier)!",
+      "FRANCE recaptured Western Europe territory!",
+      "UK executed precision Hypersonic strike on target coordinates!"
+    ];
+
+    let msgIdx = 0;
+    setInterval(() => {
+      if (tickerText) {
+        msgIdx = (msgIdx + 1) % tickerMessages.length;
+        tickerText.textContent = tickerMessages[msgIdx];
+      }
+      if (activePilots) {
+        const delta = Math.floor(Math.random() * 11) - 5;
+        let cur = parseInt(activePilots.textContent?.replace(/,/g, '') || '2845', 10);
+        cur = Math.max(1200, cur + delta);
+        activePilots.textContent = cur.toLocaleString();
+      }
+    }, 4500);
+  </script>
+</body>
+</html>

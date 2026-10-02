@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://clickwar.app/sitemap.xml
+Sitemap: https://clickwar.app/sitemap-index.xml

@@ -1,0 +1,169 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ClickWarGame from '../components/ClickWarGame.astro';
+import { ALL_COUNTRIES } from '../lib/countries';
+
+const topPowers = [...ALL_COUNTRIES].sort((a, b) => b.hp - a.hp).slice(0, 10);
+---
+
+<Layout
+  title="ClickWar — Real-Time World War Clicker Game | ClickWar.app"
+  description="Play ClickWar online! Choose your country, launch tactical missiles, trigger DEFCON 1 Frenzy combos, conquer 200+ territories, and climb the global rankings."
+  canonical="https://clickwar.app"
+>
+  <!-- HERO HEADER SECTION -->
+  <section class="py-6 text-center px-4 max-w-4xl mx-auto">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono mb-3">
+      <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+      GLOBAL CAMPAIGN ACTIVE &bull; 200+ NATIONS AT WAR
+    </div>
+    <h1 class="text-3xl sm:text-5xl font-display font-black text-white tracking-tight uppercase">
+      Conquer The World, <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-amber-500">One Click At A Time</span>
+    </h1>
+    <p class="mt-2 text-sm sm:text-base text-slate-400 max-w-2xl mx-auto font-sans">
+      Pledge allegiance to your nation, rain tactical missiles on hostile borders, upgrade high-tech warheads, and unlock <strong class="text-red-400">DEFCON 1 Frenzy</strong> to annex the world.
+    </p>
+  </section>
+
+  <!-- GAME VIEWPORT -->
+  <ClickWarGame />
+
+  <!-- LIVE WAR INTEL & LEADERBOARD SECTION -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Col 1: Top 10 World Superpowers -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+        <h2 class="font-display font-bold text-base text-white flex items-center gap-2">
+          🏆 Top Superpowers
+        </h2>
+        <a href="/rankings" class="text-xs font-mono text-red-400 hover:text-red-300">VIEW ALL &rarr;</a>
+      </div>
+      <div class="space-y-3">
+        {topPowers.map((country, idx) => (
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/60 border border-slate-800/60 text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class={`font-mono font-bold w-5 text-center ${idx === 0 ? 'text-amber-400' : idx === 1 ? 'text-slate-300' : idx === 2 ? 'text-amber-600' : 'text-slate-500'}`}>
+                #{idx + 1}
+              </span>
+              <span class="text-lg">{country.flag}</span>
+              <span class="font-medium text-slate-200">{country.name}</span>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-bold text-red-400">{country.hp.toLocaleString()} HP</div>
+              <div class="text-[10px] font-mono text-slate-500">{country.armor}% Armor</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Col 2: Military Weapons Showcase -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+        <h2 class="font-display font-bold text-base text-white flex items-center gap-2">
+          🚀 Strategic Tech Arsenal
+        </h2>
+        <a href="/weapons" class="text-xs font-mono text-amber-400 hover:text-amber-300">TECH TREE &rarr;</a>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60 flex items-start gap-3">
+          <span class="text-2xl p-1 bg-red-950/50 rounded-lg border border-red-800/40">🚀</span>
+          <div>
+            <div class="font-display font-bold text-slate-200">Tactical Rocket</div>
+            <p class="text-slate-400 text-[11px] mt-0.5">Rapid-fire standard issue rocket. Unlimited supply, perfect for fueling Frenzy combos.</p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60 flex items-start gap-3">
+          <span class="text-2xl p-1 bg-amber-950/50 rounded-lg border border-amber-800/40">🛸</span>
+          <div>
+            <div class="font-display font-bold text-slate-200">Kamikaze Drone Swarm</div>
+            <p class="text-slate-400 text-[11px] mt-0.5">Autonomous stealth drones with 5x baseline damage and fast flight arcs.</p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60 flex items-start gap-3">
+          <span class="text-2xl p-1 bg-sky-950/50 rounded-lg border border-sky-800/40">⚡</span>
+          <div>
+            <div class="font-display font-bold text-slate-200">Hypersonic Cruise Missile</div>
+            <p class="text-slate-400 text-[11px] mt-0.5">Mach 8 armor-piercing warheads that slice through enemy fortification shields.</p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60 flex items-start gap-3">
+          <span class="text-2xl p-1 bg-rose-950/50 rounded-lg border border-rose-800/40">☢️</span>
+          <div>
+            <div class="font-display font-bold text-slate-200">Tactical Nuclear Warhead</div>
+            <p class="text-slate-400 text-[11px] mt-0.5">Devastating atomic detonation dealing 150 damage with huge screen-shaking blast.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Col 3: Warfare Tactics & Strategy Guides -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+          <h2 class="font-display font-bold text-base text-white flex items-center gap-2">
+            📖 General's Field Manual
+          </h2>
+          <a href="/how-to-play" class="text-xs font-mono text-emerald-400 hover:text-emerald-300">FULL GUIDE &rarr;</a>
+        </div>
+        <div class="space-y-3 text-xs text-slate-400">
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
+            <strong class="text-white block mb-1">⚡ 1. Build Click Momentum</strong>
+            Click the enemy map continuously to build your Frenzy meter. Once it hits 100%, you unleash DEFCON 1 with 5x damage multiplier.
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
+            <strong class="text-white block mb-1">🗺️ 2. Annex Hostile Territories</strong>
+            When a country's defense HP hits 0, it turns into your flag's territory color and adds to your world conquest score.
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
+            <strong class="text-white block mb-1">🛡️ 3. Manage Energy Reserves</strong>
+            Save high-yield weapons like Nukes and Orbital Ion Beams for high-armor superpowers like USA, China, and Russia.
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 border-t border-slate-800 text-center">
+        <a href="#game-viewport" class="block w-full py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 text-white font-display font-bold text-xs uppercase tracking-wider hover:opacity-90 transition">
+          🚀 Enter The War Map
+        </a>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- SEO CONTENT ARTICLE & FAQ -->
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 mt-16 text-slate-300 space-y-8">
+    <div class="border-t border-slate-800 pt-8">
+      <h2 class="font-display font-black text-2xl text-white tracking-tight mb-4">
+        What is ClickWar.app? The Real-Time World War MMO Clicker
+      </h2>
+      <p class="text-sm leading-relaxed text-slate-400">
+        <strong>ClickWar.app</strong> is an adrenaline-fueled real-time global multiplayer clicker game where players represent over 200 nations in an all-out tactical world war simulation. Unlike conventional idle games, ClickWar blends fast-paced clicker physics, ballistic missile trajectories, live multiplayer conflict feeds, and deep geopolitical territory mechanics into a browser-native gaming experience.
+      </p>
+    </div>
+
+    <!-- FAQ -->
+    <div class="space-y-4">
+      <h3 class="font-display font-bold text-xl text-white">Frequently Asked Questions</h3>
+      
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+        <h4 class="font-display font-bold text-sm text-white">Is ClickWar.app free to play?</h4>
+        <p class="text-xs text-slate-400">Yes! ClickWar is 100% free to play directly in your web browser with no downloads, registrations, or paywalls required.</p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+        <h4 class="font-display font-bold text-sm text-white">How does DEFCON 1 Frenzy mode work?</h4>
+        <p class="text-xs text-slate-400">By clicking rapidly and maintaining a high click rate, you charge your combo meter. At 100%, you activate DEFCON 1 Frenzy mode for 9 seconds, granting a massive 5x firepower multiplier to every missile fired!</p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+        <h4 class="font-display font-bold text-sm text-white">Can I change my country allegiance?</h4>
+        <p class="text-xs text-slate-400">Yes, you can switch your home country at any time by clicking the "CHANGE" button on your top status card and selecting any of the 200+ available nations.</p>
+      </div>
+    </div>
+  </section>
+</Layout>

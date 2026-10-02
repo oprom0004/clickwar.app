@@ -1,0 +1,850 @@
+---
+import { COUNTRY_REGIONS, ALL_COUNTRIES } from '../lib/countries';
+import { CONTINENTS, COUNTRY_BOUNDARIES } from '../lib/map-data';
+
+interface Props {
+  initialTarget?: string;
+}
+
+const { initialTarget = "CHN" } = Astro.props;
+---
+
+<div id="game-viewport" class="relative w-full max-w-7xl mx-auto px-2 sm:px-4 py-4 select-none">
+
+  <!-- TOP GAME CONTROLS & STATUS BAR -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-3">
+    
+    <!-- Player Nation Badge -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center justify-between shadow-lg backdrop-blur">
+      <div class="flex items-center gap-2.5">
+        <span id="player-flag" class="text-3xl">🇺🇸</span>
+        <div>
+          <div class="text-[10px] font-mono uppercase text-slate-400">Pledged Nation</div>
+          <div id="player-country-name" class="font-display font-bold text-sm text-white truncate max-w-[110px]">United States</div>
+        </div>
+      </div>
+      <button id="btn-change-country" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-red-400 hover:text-red-300 text-[11px] font-mono rounded border border-slate-700 transition">
+        CHANGE
+      </button>
+    </div>
+
+    <!-- Energy / Ammo Reserve -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center justify-between shadow-lg backdrop-blur">
+      <div>
+        <div class="text-[10px] font-mono uppercase text-slate-400">War Energy / Ammo</div>
+        <div class="font-display font-bold text-lg text-amber-400 flex items-center gap-1.5">
+          ⚡ <span id="stat-energy">1,250</span> <span class="text-[10px] text-amber-500/70 font-mono">+10/s</span>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-[10px] font-mono uppercase text-slate-400">Territories</div>
+        <div id="stat-captured-count" class="font-mono font-bold text-sm text-emerald-400">1 / 200</div>
+      </div>
+    </div>
+
+    <!-- Multiplier / Combo Frenzy -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col justify-between shadow-lg backdrop-blur">
+      <div class="flex items-center justify-between">
+        <span class="text-[10px] font-mono uppercase text-slate-400">Frenzy Multiplier</span>
+        <span id="stat-multiplier" class="font-display font-black text-sm text-red-400">1.0x</span>
+      </div>
+      <!-- Progress Bar -->
+      <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-1 border border-slate-700/50">
+        <div id="combo-progress" class="bg-gradient-to-r from-amber-500 via-rose-500 to-red-600 h-full w-0 transition-all duration-100"></div>
+      </div>
+      <div id="frenzy-status" class="text-[10px] font-mono text-slate-500 text-right mt-0.5">Click fast to activate Frenzy!</div>
+    </div>
+
+    <!-- Total Missiles / Score -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center justify-between shadow-lg backdrop-blur">
+      <div>
+        <div class="text-[10px] font-mono uppercase text-slate-400">War Casualties Dealt</div>
+        <div id="stat-total-missiles" class="font-display font-bold text-lg text-red-500">0</div>
+      </div>
+      <div class="text-right">
+        <div class="text-[10px] font-mono uppercase text-slate-400">Global Rank</div>
+        <div id="stat-global-rank" class="font-mono font-bold text-sm text-yellow-400">#42</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAIN WAR SCREEN CONTAINER -->
+  <div class="relative w-full aspect-[16/9] min-h-[420px] max-h-[660px] bg-slate-950 border-2 border-slate-800 rounded-2xl overflow-hidden shadow-2xl war-screen">
+    
+    <!-- Canvas for Particle Effects, Missile Arcs, and Detonations -->
+    <canvas id="missile-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-30"></canvas>
+
+    <!-- Interactive SVG World Map -->
+    <svg id="world-map-svg" viewBox="0 0 1000 520" class="w-full h-full cursor-crosshair z-10 block transition-transform duration-300">
+      <defs>
+        <!-- Grid Pattern -->
+        <pattern id="radar-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255, 255, 255, 0.03)" stroke-width="1"/>
+        </pattern>
+        <!-- Glow filter -->
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+
+      <!-- Background radar grid -->
+      <rect width="1000" height="520" fill="#070b13" />
+      <rect width="1000" height="520" fill="url(#radar-grid)" />
+
+      <!-- Continents backdrop -->
+      <g id="continents-layer" class="opacity-80">
+        {CONTINENTS.map(cont => (
+          <path
+            d={cont.d}
+            fill="#121b2c"
+            stroke="#1e293b"
+            stroke-width="1.2"
+            class="transition duration-200"
+          />
+        ))}
+      </g>
+
+      <!-- Interactive Country Territories -->
+      <g id="countries-layer">
+        {ALL_COUNTRIES.map(c => (
+          <path
+            id={`country-${c.id}`}
+            data-id={c.id}
+            data-name={c.name}
+            data-hp={c.hp}
+            data-maxhp={c.maxHp}
+            data-armor={c.armor}
+            data-flag={c.flag}
+            data-color={c.color}
+            data-owner={c.owner}
+            data-x={c.x}
+            data-y={c.y}
+            d={COUNTRY_BOUNDARIES[c.id] || `M ${c.x - 12} ${c.y - 12} h 24 v 24 h -24 Z`}
+            fill="#1e293b"
+            stroke="#334155"
+            stroke-width="1.5"
+            class="country-node cursor-crosshair transition-colors duration-200 hover:fill-red-600/70 hover:stroke-red-400"
+          />
+        ))}
+      </g>
+
+      <!-- Country Node Anchor Points & Name Labels for Major Powers -->
+      <g id="country-pins" class="pointer-events-none">
+        {ALL_COUNTRIES.filter(c => c.hp > 15000).map(c => (
+          <g transform={`translate(${c.x}, ${c.y})`}>
+            <circle r="4" fill="#ef4444" opacity="0.6" class="animate-ping" />
+            <circle r="2.5" fill="#f87171" />
+            <text y="-8" text-anchor="middle" fill="#94a3b8" font-size="7.5" font-family="'JetBrains Mono', monospace" font-weight="bold">
+              {c.id}
+            </text>
+          </g>
+        ))}
+      </g>
+    </svg>
+
+    <!-- Floating Target Lock HUD (Updates on Country Hover / Click) -->
+    <div id="target-hud" class="absolute top-4 left-4 z-40 bg-slate-900/90 border border-red-500/40 rounded-xl p-3 shadow-2xl backdrop-blur-md min-w-[200px] pointer-events-none transition-all duration-200 opacity-90">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-1.5 mb-2">
+        <div class="flex items-center gap-2">
+          <span id="target-hud-flag" class="text-xl">🇨🇳</span>
+          <div>
+            <div class="text-[9px] font-mono uppercase text-red-400 font-bold tracking-wider">TARGET LOCK</div>
+            <div id="target-hud-name" class="font-display font-bold text-sm text-white">China</div>
+          </div>
+        </div>
+        <span id="target-hud-owner" class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-red-950 text-red-300 border border-red-800">
+          HOSTILE
+        </span>
+      </div>
+
+      <!-- Health Bar -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-[10px] font-mono">
+          <span class="text-slate-400">DEFENSE HP</span>
+          <span id="target-hud-hp-text" class="text-red-400 font-bold">145,000 / 145,000</span>
+        </div>
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700">
+          <div id="target-hud-hp-bar" class="bg-red-500 h-full w-full transition-all duration-150"></div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 mt-2 pt-1.5 border-t border-slate-800/80">
+        <span>ARMOR: <strong id="target-hud-armor" class="text-amber-400">20%</strong></span>
+        <span class="text-emerald-400 font-bold animate-pulse">🎯 CLICK TO STRIKE</span>
+      </div>
+    </div>
+
+    <!-- Real-time Combat Combat Feed (Bottom Left) -->
+    <div class="absolute bottom-4 left-4 z-40 max-w-[280px] sm:max-w-[340px] pointer-events-none">
+      <div id="combat-log-container" class="space-y-1 text-[11px] font-mono">
+        <!-- Live battle logs will prepend here -->
+      </div>
+    </div>
+
+    <!-- Audio Frenzy Alarm Banner Overlay (Triggered during Frenzy) -->
+    <div id="frenzy-overlay" class="absolute inset-0 bg-red-600/10 pointer-events-none opacity-0 z-20 transition-opacity duration-300 flex items-center justify-center">
+      <div class="border-2 border-red-500 bg-red-950/80 text-red-400 px-6 py-2 rounded-xl font-display font-black text-2xl tracking-widest uppercase animate-bounce shadow-2xl">
+        ⚡ DEFCON 1 FRENZY ACTIVE (5X DAMAGE) ⚡
+      </div>
+    </div>
+
+  </div>
+
+  <!-- WEAPON DOCK & TECH ARSENAL -->
+  <div class="mt-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-3 shadow-xl backdrop-blur">
+    <div class="flex items-center justify-between mb-2 px-1">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-display font-bold uppercase tracking-wider text-slate-300">Tactical Weapon Arsenal</span>
+        <span class="text-[10px] font-mono bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">KEY 1 - 5</span>
+      </div>
+      <div class="text-[11px] font-mono text-slate-400">
+        Select weapon to amplify click firepower
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2" id="weapon-arsenal-grid">
+      
+      <!-- Weapon 1: Tactical Rocket -->
+      <button data-weapon="rocket" data-cost="0" data-dmg="1" class="weapon-btn active relative p-2.5 rounded-xl bg-slate-950 border-2 border-red-500 text-left transition hover:border-red-400 flex flex-col justify-between group">
+        <div class="flex items-center justify-between">
+          <span class="text-2xl">🚀</span>
+          <span class="text-[10px] font-mono font-bold bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">[1]</span>
+        </div>
+        <div class="mt-2">
+          <div class="font-display font-bold text-xs text-white group-hover:text-red-400 transition">Tactical Rocket</div>
+          <div class="text-[10px] font-mono text-emerald-400">DMG: 1 | FREE</div>
+        </div>
+      </button>
+
+      <!-- Weapon 2: Kamikaze Drone -->
+      <button data-weapon="drone" data-cost="30" data-dmg="5" class="weapon-btn relative p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-left transition hover:border-slate-700 flex flex-col justify-between group">
+        <div class="flex items-center justify-between">
+          <span class="text-2xl">🛸</span>
+          <span class="text-[10px] font-mono font-bold bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">[2]</span>
+        </div>
+        <div class="mt-2">
+          <div class="font-display font-bold text-xs text-slate-200 group-hover:text-amber-400 transition">Kamikaze Drone</div>
+          <div class="text-[10px] font-mono text-amber-400">DMG: 5 | ⚡ 30</div>
+        </div>
+      </button>
+
+      <!-- Weapon 3: Hypersonic Cruise -->
+      <button data-weapon="cruise" data-cost="150" data-dmg="25" class="weapon-btn relative p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-left transition hover:border-slate-700 flex flex-col justify-between group">
+        <div class="flex items-center justify-between">
+          <span class="text-2xl">⚡</span>
+          <span class="text-[10px] font-mono font-bold bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">[3]</span>
+        </div>
+        <div class="mt-2">
+          <div class="font-display font-bold text-xs text-slate-200 group-hover:text-amber-400 transition">Hypersonic Cruise</div>
+          <div class="text-[10px] font-mono text-amber-400">DMG: 25 | ⚡ 150</div>
+        </div>
+      </button>
+
+      <!-- Weapon 4: Tactical Nuke -->
+      <button data-weapon="nuke" data-cost="600" data-dmg="150" class="weapon-btn relative p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-left transition hover:border-slate-700 flex flex-col justify-between group">
+        <div class="flex items-center justify-between">
+          <span class="text-2xl">☢️</span>
+          <span class="text-[10px] font-mono font-bold bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">[4]</span>
+        </div>
+        <div class="mt-2">
+          <div class="font-display font-bold text-xs text-slate-200 group-hover:text-rose-400 transition">Tactical Nuke</div>
+          <div class="text-[10px] font-mono text-rose-400">DMG: 150 | ⚡ 600</div>
+        </div>
+      </button>
+
+      <!-- Weapon 5: Orbital Ion Cannon -->
+      <button data-weapon="ion" data-cost="2500" data-dmg="1000" class="weapon-btn relative p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-left transition hover:border-slate-700 flex flex-col justify-between group">
+        <div class="flex items-center justify-between">
+          <span class="text-2xl">🛰️</span>
+          <span class="text-[10px] font-mono font-bold bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">[5]</span>
+        </div>
+        <div class="mt-2">
+          <div class="font-display font-bold text-xs text-slate-200 group-hover:text-cyan-400 transition">Orbital Ion Beam</div>
+          <div class="text-[10px] font-mono text-cyan-400">DMG: 1,000 | ⚡ 2.5k</div>
+        </div>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- NATION SELECTION MODAL -->
+  <div id="nation-select-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div>
+          <h3 class="font-display font-bold text-lg text-white">Choose Your Country</h3>
+          <p class="text-xs text-slate-400">Pledge allegiance to fight and conquer under your flag.</p>
+        </div>
+        <button id="modal-close-btn" class="text-slate-400 hover:text-white text-lg">&times;</button>
+      </div>
+
+      <!-- Quick Search Input -->
+      <div class="py-3">
+        <input id="country-search-input" type="text" placeholder="Search country name or code..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 font-mono" />
+      </div>
+
+      <!-- Country List Grid -->
+      <div id="country-select-grid" class="flex-1 overflow-y-auto space-y-1.5 pr-1 py-1">
+        {ALL_COUNTRIES.map(c => (
+          <button
+            data-select-country={c.id}
+            data-name={c.name}
+            data-flag={c.flag}
+            class="w-full flex items-center justify-between p-2 rounded-lg bg-slate-950/50 hover:bg-red-950/40 border border-slate-800 hover:border-red-500/50 text-left transition group"
+          >
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">{c.flag}</span>
+              <div>
+                <div class="font-medium text-sm text-slate-200 group-hover:text-white">{c.name}</div>
+                <div class="text-[10px] font-mono text-slate-400">ID: {c.id} | Max HP: {c.maxHp.toLocaleString()}</div>
+              </div>
+            </div>
+            <span class="text-xs font-mono font-bold text-slate-500 group-hover:text-red-400">SELECT &rarr;</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CLIENT GAME LOGIC ENGINE SCRIPT -->
+<script>
+  import { soundSystem } from '../lib/sound';
+  import { ALL_COUNTRIES } from '../lib/countries';
+  import confetti from 'canvas-confetti';
+
+  interface Missile {
+    x0: number;
+    y0: number;
+    x1: number;
+    y1: number;
+    cx: number;
+    cy: number;
+    progress: number;
+    speed: number;
+    color: string;
+    weaponType: string;
+    dmg: number;
+    targetId: string;
+    attackerId: string;
+    isPlayer: boolean;
+  }
+
+  interface ExplosionParticle {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    radius: number;
+    color: string;
+    alpha: number;
+    decay: number;
+  }
+
+  // --- STATE INITIALIZATION ---
+  let playerCountryId = localStorage.getItem('clickwar_player_country') || 'USA';
+  let targetCountryId = 'CHN';
+  let currentWeapon = 'rocket';
+  let energy = parseInt(localStorage.getItem('clickwar_energy') || '1250', 10);
+  let totalMissilesFired = parseInt(localStorage.getItem('clickwar_fired') || '0', 10);
+  let capturedCount = 1;
+
+  // Combo / Frenzy State
+  let comboPoints = 0;
+  let isFrenzy = false;
+  let frenzyTimer: number | null = null;
+  let lastClickTime = 0;
+
+  // Countries runtime registry (HP, armor, owner)
+  const countryStateMap = new Map<string, {
+    hp: number;
+    maxHp: number;
+    armor: number;
+    owner: string;
+    name: string;
+    flag: string;
+    x: number;
+    y: number;
+    color: string;
+  }>();
+
+  ALL_COUNTRIES.forEach(c => {
+    countryStateMap.set(c.id, {
+      hp: c.hp,
+      maxHp: c.maxHp,
+      armor: c.armor,
+      owner: c.owner,
+      name: c.name,
+      flag: c.flag,
+      x: c.x,
+      y: c.y,
+      color: c.color
+    });
+  });
+
+  // Weapon specs
+  const WEAPONS: Record<string, { dmg: number; cost: number; color: string; speed: number; sound: () => void }> = {
+    rocket: { dmg: 1, cost: 0, color: '#ef4444', speed: 0.035, sound: () => soundSystem.playMissileLaunch() },
+    drone: { dmg: 5, cost: 30, color: '#f59e0b', speed: 0.045, sound: () => soundSystem.playMissileLaunch() },
+    cruise: { dmg: 25, cost: 150, color: '#38bdf8', speed: 0.06, sound: () => soundSystem.playMissileLaunch() },
+    nuke: { dmg: 150, cost: 600, color: '#f43f5e', speed: 0.03, sound: () => soundSystem.playExplosion('large') },
+    ion: { dmg: 1000, cost: 2500, color: '#06b6d4', speed: 0.12, sound: () => soundSystem.playIonBeam() }
+  };
+
+  // Missile & Particle arrays
+  const activeMissiles: Missile[] = [];
+  const activeExplosions: ExplosionParticle[] = [];
+
+  // Canvas context
+  const canvas = document.getElementById('missile-canvas') as HTMLCanvasElement;
+  const ctx = canvas?.getContext('2d');
+
+  function resizeCanvas() {
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  // --- UI ELEMENT REFS ---
+  const playerFlagEl = document.getElementById('player-flag');
+  const playerNameEl = document.getElementById('player-country-name');
+  const energyEl = document.getElementById('stat-energy');
+  const firedEl = document.getElementById('stat-total-missiles');
+  const capturedEl = document.getElementById('stat-captured-count');
+  const comboBarEl = document.getElementById('combo-progress');
+  const multiplierEl = document.getElementById('stat-multiplier');
+  const frenzyOverlay = document.getElementById('frenzy-overlay');
+  const targetHud = document.getElementById('target-hud');
+  const targetHudFlag = document.getElementById('target-hud-flag');
+  const targetHudName = document.getElementById('target-hud-name');
+  const targetHudHpText = document.getElementById('target-hud-hp-text');
+  const targetHudHpBar = document.getElementById('target-hud-hp-bar');
+  const targetHudArmor = document.getElementById('target-hud-armor');
+  const targetHudOwner = document.getElementById('target-hud-owner');
+  const combatLogContainer = document.getElementById('combat-log-container');
+
+  // Modal elements
+  const modal = document.getElementById('nation-select-modal');
+  const btnChangeCountry = document.getElementById('btn-change-country');
+  const modalCloseBtn = document.getElementById('modal-close-btn');
+  const searchInput = document.getElementById('country-search-input') as HTMLInputElement;
+
+  function updatePlayerUI() {
+    const pData = countryStateMap.get(playerCountryId);
+    if (pData) {
+      if (playerFlagEl) playerFlagEl.textContent = pData.flag;
+      if (playerNameEl) playerNameEl.textContent = pData.name;
+    }
+    if (energyEl) energyEl.textContent = energy.toLocaleString();
+    if (firedEl) firedEl.textContent = totalMissilesFired.toLocaleString();
+    if (capturedEl) capturedEl.textContent = `${capturedCount} / 200`;
+  }
+
+  function updateTargetHUD(countryId: string) {
+    targetCountryId = countryId;
+    const target = countryStateMap.get(countryId);
+    if (!target) return;
+
+    if (targetHudFlag) targetHudFlag.textContent = target.flag;
+    if (targetHudName) targetHudName.textContent = target.name;
+    if (targetHudHpText) targetHudHpText.textContent = `${target.hp.toLocaleString()} / ${target.maxHp.toLocaleString()}`;
+    if (targetHudArmor) targetHudArmor.textContent = `${target.armor}%`;
+
+    const pct = Math.max(0, Math.min(100, (target.hp / target.maxHp) * 100));
+    if (targetHudHpBar) {
+      targetHudHpBar.style.width = `${pct}%`;
+      if (pct < 25) {
+        targetHudHpBar.className = "bg-rose-600 h-full transition-all duration-150 animate-pulse";
+      } else if (pct < 50) {
+        targetHudHpBar.className = "bg-amber-500 h-full transition-all duration-150";
+      } else {
+        targetHudHpBar.className = "bg-red-500 h-full transition-all duration-150";
+      }
+    }
+
+    if (targetHudOwner) {
+      if (target.owner === playerCountryId) {
+        targetHudOwner.textContent = "CONTROLLED";
+        targetHudOwner.className = "text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800";
+      } else {
+        targetHudOwner.textContent = "HOSTILE";
+        targetHudOwner.className = "text-[9px] font-mono px-1.5 py-0.5 rounded bg-red-950 text-red-300 border border-red-800";
+      }
+    }
+  }
+
+  function addCombatLog(text: string, type: 'hit' | 'conquer' | 'frenzy' = 'hit') {
+    if (!combatLogContainer) return;
+    const item = document.createElement('div');
+    const colorClass = type === 'conquer' ? 'text-amber-400 font-bold bg-amber-950/60 border-amber-500/40' :
+                       type === 'frenzy' ? 'text-rose-400 font-black bg-rose-950/60 border-rose-500/40' :
+                       'text-slate-300 bg-slate-900/70 border-slate-800';
+    item.className = `px-2 py-1 rounded border backdrop-blur-sm transition-all duration-300 ${colorClass} opacity-90`;
+    item.textContent = text;
+    combatLogContainer.prepend(item);
+
+    // Keep max 4 messages
+    while (combatLogContainer.children.length > 4) {
+      combatLogContainer.removeChild(combatLogContainer.lastChild!);
+    }
+  }
+
+  // --- WEAPON SELECTION LOGIC ---
+  const weaponBtns = document.querySelectorAll('.weapon-btn');
+  function selectWeapon(name: string) {
+    if (!WEAPONS[name]) return;
+    currentWeapon = name;
+    weaponBtns.forEach(btn => {
+      const w = btn.getAttribute('data-weapon');
+      if (w === name) {
+        btn.classList.add('border-2', 'border-red-500');
+        btn.classList.remove('border-slate-800', 'bg-slate-950/60');
+        btn.classList.add('bg-slate-950');
+      } else {
+        btn.classList.remove('border-2', 'border-red-500', 'bg-slate-950');
+        btn.classList.add('border-slate-800', 'bg-slate-950/60');
+      }
+    });
+  }
+
+  weaponBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const w = btn.getAttribute('data-weapon');
+      if (w) selectWeapon(w);
+    });
+  });
+
+  // Keyboard Shortcuts (1-5)
+  window.addEventListener('keydown', (e) => {
+    if (['1', '2', '3', '4', '5'].includes(e.key)) {
+      const map: Record<string, string> = { '1': 'rocket', '2': 'drone', '3': 'cruise', '4': 'nuke', '5': 'ion' };
+      selectWeapon(map[e.key]);
+    }
+  });
+
+  // --- MISSILE LAUNCH & TARGET CLICK ---
+  function fireMissile(fromId: string, toId: string, isPlayerAction = true) {
+    const from = countryStateMap.get(fromId);
+    const to = countryStateMap.get(toId);
+    if (!from || !to || !canvas) return;
+
+    const w = WEAPONS[currentWeapon];
+    if (isPlayerAction) {
+      if (w.cost > 0 && energy < w.cost) {
+        soundSystem.playShieldDeflect();
+        addCombatLog(`⚡ Insufficient Energy for ${currentWeapon.toUpperCase()}!`, 'hit');
+        return;
+      }
+      energy -= w.cost;
+      totalMissilesFired++;
+      localStorage.setItem('clickwar_energy', energy.toString());
+      localStorage.setItem('clickwar_fired', totalMissilesFired.toString());
+
+      // Combo handling
+      const now = Date.now();
+      if (now - lastClickTime < 450) {
+        comboPoints = Math.min(100, comboPoints + 8);
+      } else {
+        comboPoints = Math.min(100, comboPoints + 3);
+      }
+      lastClickTime = now;
+
+      if (comboPoints >= 100 && !isFrenzy) {
+        triggerFrenzy();
+      }
+      updateComboUI();
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = rect.width / 1000;
+    const scaleY = rect.height / 520;
+
+    const x0 = from.x * scaleX;
+    const y0 = from.y * scaleY;
+    const x1 = to.x * scaleX;
+    const y1 = to.y * scaleY;
+
+    // Bezier control point arc
+    const midX = (x0 + x1) / 2;
+    const dist = Math.hypot(x1 - x0, y1 - y0);
+    const arcHeight = Math.min(120, dist * 0.4);
+    const midY = (y0 + y1) / 2 - arcHeight;
+
+    const multiplier = isFrenzy ? 5 : 1;
+    const dmg = (isPlayerAction ? w.dmg * multiplier : Math.ceil(Math.random() * 3));
+
+    activeMissiles.push({
+      x0, y0, x1, y1,
+      cx: midX,
+      cy: midY,
+      progress: 0,
+      speed: w.speed * (isPlayerAction && isFrenzy ? 1.4 : 1),
+      color: isPlayerAction ? w.color : '#94a3b8',
+      weaponType: isPlayerAction ? currentWeapon : 'rocket',
+      dmg,
+      targetId: toId,
+      attackerId: fromId,
+      isPlayer: isPlayerAction
+    });
+
+    if (isPlayerAction) {
+      w.sound();
+    }
+  }
+
+  function triggerFrenzy() {
+    isFrenzy = true;
+    soundSystem.playFrenzyAlarm();
+    if (frenzyOverlay) frenzyOverlay.style.opacity = '1';
+    if (multiplierEl) {
+      multiplierEl.textContent = '5.0x DEFCON 1';
+      multiplierEl.className = 'font-display font-black text-sm text-rose-500 animate-pulse';
+    }
+    addCombatLog('⚡ DEFCON 1 FRENZY ACTIVATED! (5X FIREPOWER)', 'frenzy');
+
+    if (frenzyTimer) clearTimeout(frenzyTimer);
+    frenzyTimer = window.setTimeout(() => {
+      isFrenzy = false;
+      comboPoints = 0;
+      if (frenzyOverlay) frenzyOverlay.style.opacity = '0';
+      if (multiplierEl) {
+        multiplierEl.textContent = '1.0x';
+        multiplierEl.className = 'font-display font-black text-sm text-red-400';
+      }
+      updateComboUI();
+    }, 9000);
+  }
+
+  function updateComboUI() {
+    if (comboBarEl) {
+      comboBarEl.style.width = `${comboPoints}%`;
+    }
+  }
+
+  // Decay combo slowly when idle
+  setInterval(() => {
+    if (!isFrenzy && comboPoints > 0) {
+      comboPoints = Math.max(0, comboPoints - 3);
+      updateComboUI();
+    }
+  }, 350);
+
+  // Passive energy regen
+  setInterval(() => {
+    energy = Math.min(99999, energy + 10);
+    if (energyEl) energyEl.textContent = energy.toLocaleString();
+  }, 1000);
+
+  // --- DETONATION & DAMAGE LOGIC ---
+  function onMissileHit(m: Missile) {
+    const target = countryStateMap.get(m.targetId);
+    if (!target) return;
+
+    // Spawn explosion particles
+    createExplosion(m.x1, m.y1, m.color, m.weaponType);
+
+    // Apply Armor reduction
+    const effectiveDmg = Math.max(1, Math.round(m.dmg * (1 - target.armor / 100)));
+    target.hp = Math.max(0, target.hp - effectiveDmg);
+
+    if (m.isPlayer) {
+      soundSystem.playExplosion(m.weaponType === 'nuke' ? 'large' : 'small');
+      addCombatLog(`💥 Struck ${target.name} for -${effectiveDmg.toLocaleString()} DMG!`, 'hit');
+    }
+
+    // Check if territory captured!
+    if (target.hp <= 0 && target.owner !== m.attackerId) {
+      target.owner = m.attackerId;
+      target.hp = target.maxHp; // Reset for new garrison
+      capturedCount++;
+
+      // Recolour SVG map path
+      const pathEl = document.getElementById(`country-${target.name}`);
+      if (pathEl) {
+        pathEl.setAttribute('fill', m.isPlayer ? '#10b981' : '#dc2626');
+      }
+
+      if (m.isPlayer) {
+        soundSystem.playConquestFanfare();
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+        addCombatLog(`🏆 VICTORY! ${target.name} has been annexed into your territory!`, 'conquer');
+      }
+    }
+
+    if (m.targetId === targetCountryId) {
+      updateTargetHUD(targetCountryId);
+    }
+    updatePlayerUI();
+  }
+
+  function createExplosion(x: number, y: number, color: string, weaponType: string) {
+    const count = weaponType === 'nuke' ? 35 : weaponType === 'ion' ? 25 : 12;
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * (weaponType === 'nuke' ? 6 : 3.5) + 1;
+      activeExplosions.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        radius: Math.random() * 3 + 1.5,
+        color,
+        alpha: 1,
+        decay: Math.random() * 0.03 + 0.02
+      });
+    }
+  }
+
+  // --- 60 FPS CANVAS RENDER LOOP ---
+  function renderLoop() {
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Draw Active Missiles
+    for (let i = activeMissiles.length - 1; i >= 0; i--) {
+      const m = activeMissiles[i];
+      m.progress += m.speed;
+
+      const t = m.progress;
+      const invT = 1 - t;
+      // Quadratic Bezier interpolation: B(t) = (1-t)^2 P0 + 2(1-t)t P1 + t^2 P2
+      const curX = invT * invT * m.x0 + 2 * invT * t * m.cx + t * t * m.x1;
+      const curY = invT * invT * m.y0 + 2 * invT * t * m.cy + t * t * m.y1;
+
+      // Draw glowing trail
+      ctx.beginPath();
+      ctx.moveTo(m.x0, m.y0);
+      ctx.quadraticCurveTo(m.cx, m.cy, curX, curY);
+      ctx.strokeStyle = m.color;
+      ctx.lineWidth = m.isPlayer ? 2.5 : 1.2;
+      ctx.shadowColor = m.color;
+      ctx.shadowBlur = m.isPlayer ? 8 : 3;
+      ctx.stroke();
+
+      // Draw missile warhead head
+      ctx.beginPath();
+      ctx.arc(curX, curY, m.weaponType === 'nuke' ? 4.5 : 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 10;
+      ctx.fill();
+
+      // Check hit
+      if (m.progress >= 1) {
+        onMissileHit(m);
+        activeMissiles.splice(i, 1);
+      }
+    }
+
+    // 2. Draw Explosions
+    for (let i = activeExplosions.length - 1; i >= 0; i--) {
+      const p = activeExplosions[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.alpha -= p.decay;
+
+      if (p.alpha <= 0) {
+        activeExplosions.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 6;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    requestAnimationFrame(renderLoop);
+  }
+  requestAnimationFrame(renderLoop);
+
+  // --- BACKGROUND GLOBAL CONFLICT SIMULATOR ---
+  // Periodically fires simulated missiles between AI countries for lively war atmosphere
+  setInterval(() => {
+    const countryKeys = Array.from(countryStateMap.keys());
+    if (countryKeys.length < 2) return;
+    const fromKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
+    const toKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
+    if (fromKey !== toKey && fromKey !== playerCountryId) {
+      fireMissile(fromKey, toKey, false);
+    }
+  }, 1200);
+
+  // --- MAP INTERACTION (CLICKS & HOVERS) ---
+  const countryElements = document.querySelectorAll('.country-node');
+  countryElements.forEach(el => {
+    const cId = el.getAttribute('data-id') || '';
+
+    el.addEventListener('mouseenter', () => {
+      updateTargetHUD(cId);
+    });
+
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      updateTargetHUD(cId);
+      fireMissile(playerCountryId, cId, true);
+    });
+  });
+
+  // Map background click fires at current target
+  const mapSvg = document.getElementById('world-map-svg');
+  if (mapSvg) {
+    mapSvg.addEventListener('click', () => {
+      fireMissile(playerCountryId, targetCountryId, true);
+    });
+  }
+
+  // --- NATION SELECT MODAL LOGIC ---
+  if (btnChangeCountry && modal && modalCloseBtn) {
+    btnChangeCountry.addEventListener('click', () => modal.classList.remove('hidden'));
+    modalCloseBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+    const selectButtons = document.querySelectorAll('[data-select-country]');
+    selectButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-select-country');
+        if (id) {
+          playerCountryId = id;
+          localStorage.setItem('clickwar_player_country', id);
+          updatePlayerUI();
+          modal.classList.add('hidden');
+          addCombatLog(`🎖️ Sworn allegiance to ${countryStateMap.get(id)?.name}!`, 'conquer');
+        }
+      });
+    });
+
+    // Search filter
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const q = (e.target as HTMLInputElement).value.toLowerCase();
+        selectButtons.forEach(btn => {
+          const name = btn.getAttribute('data-name')?.toLowerCase() || '';
+          const id = btn.getAttribute('data-select-country')?.toLowerCase() || '';
+          if (name.includes(q) || id.includes(q)) {
+            (btn as HTMLElement).style.display = 'flex';
+          } else {
+            (btn as HTMLElement).style.display = 'none';
+          }
+        });
+      });
+    }
+  }
+
+  // Initial UI Render
+  updatePlayerUI();
+  updateTargetHUD('CHN');
+</script>

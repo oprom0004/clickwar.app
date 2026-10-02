@@ -1,0 +1,109 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { ALL_COUNTRIES } from '../lib/countries';
+
+const sortedCountries = [...ALL_COUNTRIES].sort((a, b) => b.hp - a.hp);
+---
+
+<Layout
+  title="Global Superpower Rankings & Leaderboard — ClickWar.app"
+  description="View the real-time global military rankings and territory control stats across all 200+ nations in ClickWar. Track casualty statistics and defense fortifications."
+  canonical="https://clickwar.app/rankings"
+>
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono mb-3">
+        🏆 REAL-TIME GLOBAL INTELLIGENCE
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-display font-black text-white uppercase tracking-tight">
+        Global Superpower Leaderboard
+      </h1>
+      <p class="mt-2 text-sm text-slate-400 font-sans">
+        Live military strength, defense fortifications, and global ranking statistics for all sovereign territories in the ClickWar theater.
+      </p>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="text-xs font-mono uppercase text-slate-400">Total World Territories</div>
+        <div class="font-display font-black text-2xl text-white mt-1">200+ NATIONS</div>
+        <div class="text-[11px] font-mono text-emerald-400 mt-1">100% Contested In Real-Time</div>
+      </div>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="text-xs font-mono uppercase text-slate-400">Global Missiles Fired Today</div>
+        <div class="font-display font-black text-2xl text-red-500 mt-1">1,842,500+</div>
+        <div class="text-[11px] font-mono text-slate-400 mt-1">Average 450 strikes/min</div>
+      </div>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="text-xs font-mono uppercase text-slate-400">Current Global Hegemon</div>
+        <div class="font-display font-black text-2xl text-amber-400 mt-1 flex items-center gap-2">
+          <span>🇺🇸</span> USA (145k HP)
+        </div>
+        <div class="text-[11px] font-mono text-amber-500/80 mt-1">Under Constant Barrage</div>
+      </div>
+    </div>
+
+    <!-- Rankings Table -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <h2 class="font-display font-bold text-base text-white">
+          All Nations Strength Roster
+        </h2>
+        <a href="/#game-viewport" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-display font-bold uppercase rounded-lg transition">
+          💥 Launch Attack
+        </a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs font-sans">
+          <thead class="bg-slate-950/80 text-slate-400 font-mono uppercase border-b border-slate-800">
+            <tr>
+              <th class="py-3 px-4">Rank</th>
+              <th class="py-3 px-4">Nation</th>
+              <th class="py-3 px-4">Region</th>
+              <th class="py-3 px-4">Defense HP</th>
+              <th class="py-3 px-4">Armor Fortification</th>
+              <th class="py-3 px-4">Territory Status</th>
+              <th class="py-3 px-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 font-mono">
+            {sortedCountries.map((c, idx) => (
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3.5 px-4 font-bold">
+                  <span class={`inline-block w-6 text-center ${idx === 0 ? 'text-amber-400 font-black text-sm' : idx === 1 ? 'text-slate-300 font-black text-sm' : idx === 2 ? 'text-amber-600 font-black text-sm' : 'text-slate-500'}`}>
+                    #{idx + 1}
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 font-sans font-medium text-white flex items-center gap-2.5">
+                  <span class="text-xl">{c.flag}</span>
+                  <div>
+                    <div>{c.name}</div>
+                    <div class="text-[10px] font-mono text-slate-500 uppercase">{c.id}</div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-slate-400 font-sans">{c.region}</td>
+                <td class="py-3.5 px-4 text-red-400 font-bold">{c.hp.toLocaleString()} HP</td>
+                <td class="py-3.5 px-4 text-amber-400">{c.armor}% Shield</td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] bg-slate-800 text-emerald-400 border border-slate-700">
+                    Sovereign
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right font-sans">
+                  <a href={`/war/${c.name.toLowerCase().replace(/\s+/g, '-')}`} class="inline-block px-2.5 py-1 rounded bg-slate-800 hover:bg-red-900/50 hover:text-red-300 text-slate-300 border border-slate-700 text-[11px] transition">
+                    War Intel &rarr;
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+</Layout>

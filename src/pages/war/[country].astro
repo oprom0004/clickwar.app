@@ -1,0 +1,94 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ClickWarGame from '../../components/ClickWarGame.astro';
+import { ALL_COUNTRIES } from '../../lib/countries';
+
+export async function getStaticPaths() {
+  return ALL_COUNTRIES.map(c => {
+    const slug = c.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    return {
+      params: { country: slug },
+      props: { countryData: c }
+    };
+  });
+}
+
+interface Props {
+  countryData: typeof ALL_COUNTRIES[0];
+}
+
+const { countryData } = Astro.props;
+const rank = [...ALL_COUNTRIES].sort((a, b) => b.hp - a.hp).findIndex(c => c.id === countryData.id) + 1;
+---
+
+<Layout
+  title={`${countryData.name} Battlefield Intel & War Simulation — ClickWar.app`}
+  description={`Join the battle for ${countryData.name}! Defense HP: ${countryData.hp.toLocaleString()}, Armor: ${countryData.armor}%. Launch precision missile strikes and conquer ${countryData.name} on ClickWar.app.`}
+  canonical={`https://clickwar.app/war/${countryData.name.toLowerCase().replace(/\s+/g, '-')}`}
+>
+  <!-- Country War Hero Section -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md mb-6">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        
+        <div class="flex items-center gap-4 sm:gap-6">
+          <div class="text-5xl sm:text-6xl p-3 sm:p-4 bg-slate-950 rounded-2xl border border-slate-800 shrink-0 shadow-inner">
+            {countryData.flag}
+          </div>
+          <div>
+            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono mb-1">
+              ⚡ ACTIVE THEATER OF WAR
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-display font-black text-white uppercase tracking-tight">
+              {countryData.name} Frontier
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-400 font-mono mt-0.5">
+              ISO: {countryData.id} &bull; Region: {countryData.region} &bull; Global Rank: #{rank}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div class="px-4 py-2 bg-slate-950 rounded-xl border border-slate-800 text-center flex-1 sm:flex-initial">
+            <div class="text-[10px] font-mono text-slate-400 uppercase">Defense HP</div>
+            <div class="font-display font-black text-lg text-red-400">{countryData.hp.toLocaleString()}</div>
+          </div>
+          <div class="px-4 py-2 bg-slate-950 rounded-xl border border-slate-800 text-center flex-1 sm:flex-initial">
+            <div class="text-[10px] font-mono text-slate-400 uppercase">Armor Plating</div>
+            <div class="font-display font-black text-lg text-amber-400">{countryData.armor}%</div>
+          </div>
+          <a href="#game-viewport" class="px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 text-white font-display font-bold text-xs uppercase tracking-wider hover:opacity-90 shadow-xl transition flex-1 sm:flex-initial text-center">
+            🎯 Strike {countryData.id}
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Live Game Screen Targeted at this Country -->
+    <ClickWarGame initialTarget={countryData.id} />
+
+    <!-- Country Strategic Defense Analysis -->
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-300">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
+        <h2 class="font-display font-bold text-lg text-white flex items-center gap-2">
+          🛡️ Tactical Defense Breakdown
+        </h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          {countryData.name} ({countryData.id}) possesses a baseline defense fortification of <strong>{countryData.hp.toLocaleString()} HP</strong> with <strong>{countryData.armor}% armor damage reduction</strong>. 
+          To penetrate its air defense perimeter efficiently, commanders should deploy high-velocity <em>Hypersonic Cruise Missiles (Tier 3)</em> or concentrate fire during <em>DEFCON 1 Frenzy</em> periods.
+        </p>
+      </div>
+
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
+        <h2 class="font-display font-bold text-lg text-white flex items-center gap-2">
+          🗺️ Annexation & Spoils of War
+        </h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Annexing {countryData.name} grants significant territory control points to your faction and permanently repaints its region on the global radar grid to your country's banner. 
+          Coordinate with allied clickers to maintain pressure and deplete its defensive garrison.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>

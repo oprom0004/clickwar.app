@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="How to Play ClickWar — Official Strategy Guide & Rules | ClickWar.app"
+  description="Master the battlefield in ClickWar! Learn how to conquer territories, trigger DEFCON 1 Frenzy combos, manage weapon energy, and climb the superpower rankings."
+  canonical="https://clickwar.app/how-to-play"
+>
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+    
+    <!-- Header -->
+    <div class="text-center max-w-2xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono mb-3">
+        📖 FIELD MANUAL & TACTICAL PROTOCOLS
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-display font-black text-white uppercase tracking-tight">
+        How To Play ClickWar
+      </h1>
+      <p class="mt-2 text-sm text-slate-400 font-sans">
+        Everything you need to know to dominate the global map, unlock high-tier superweapons, and lead your faction to victory.
+      </p>
+    </div>
+
+    <!-- Core Rules Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Step 1 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-red-600/20 border border-red-500/40 flex items-center justify-center font-display font-black text-red-400">
+            1
+          </div>
+          <h2 class="font-display font-bold text-base text-white">Select Your Country Allegiance</h2>
+        </div>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          When you enter ClickWar, your home base defaults to the United States (or your local region). Click the <strong>CHANGE</strong> button on the top status card anytime to pledge your allegiance to any of the 200+ sovereign nations. All missiles you fire originate from your pledged territory!
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-600/20 border border-amber-500/40 flex items-center justify-center font-display font-black text-amber-400">
+            2
+          </div>
+          <h2 class="font-display font-bold text-base text-white">Lock Target & Launch Strikes</h2>
+        </div>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Hover over or click any country on the interactive world radar map to lock onto it. The top-left target HUD displays the enemy's real-time <strong>Defense HP</strong> and <strong>Armor %</strong>. Click rapidly on the map to fire high-speed ballistic missiles directly at the target coordinates.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3" id="combos">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-rose-600/20 border border-rose-500/40 flex items-center justify-center font-display font-black text-rose-400">
+            3
+          </div>
+          <h2 class="font-display font-bold text-base text-white">Trigger DEFCON 1 Frenzy Combos</h2>
+        </div>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Clicking rhythmically fills your <strong>Frenzy Combo Bar</strong>. When the bar reaches 100%, you activate <strong>DEFCON 1 FRENZY</strong> for 9 seconds, granting a massive <strong class="text-red-400">5.0x Firepower Multiplier</strong> and increased missile launch velocity!
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3" id="territory">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center font-display font-black text-cyan-400">
+            4
+          </div>
+          <h2 class="font-display font-bold text-base text-white">Annex Territories & Claim Victory</h2>
+        </div>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          When an enemy nation's Defense HP is reduced to 0, that nation is immediately annexed under your flag! Its territory border permanently recolors on the map to your faction color, and your global territory conquest count increases.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Hotkeys Reference Card -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+      <h3 class="font-display font-bold text-base text-white mb-4">⌨️ Tactical Keyboard Shortcuts</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs font-mono">
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-center">
+          <div class="font-bold text-white text-base text-red-400">[1]</div>
+          <div class="text-[10px] text-slate-400 mt-1">Tactical Rocket</div>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-center">
+          <div class="font-bold text-white text-base text-amber-400">[2]</div>
+          <div class="text-[10px] text-slate-400 mt-1">Kamikaze Drone</div>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-center">
+          <div class="font-bold text-white text-base text-sky-400">[3]</div>
+          <div class="text-[10px] text-slate-400 mt-1">Hypersonic Cruise</div>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-center">
+          <div class="font-bold text-white text-base text-rose-400">[4]</div>
+          <div class="text-[10px] text-slate-400 mt-1">Tactical Nuke</div>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-center">
+          <div class="font-bold text-white text-base text-cyan-400">[5]</div>
+          <div class="text-[10px] text-slate-400 mt-1">Orbital Ion Beam</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center pt-4">
+      <a href="/#game-viewport" class="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 text-white font-display font-bold text-sm uppercase tracking-wider hover:opacity-90 shadow-2xl transition">
+        🚀 Ready To Battle — Play Now
+      </a>
+    </div>
+
+  </section>
+</Layout>

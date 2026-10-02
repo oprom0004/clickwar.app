@@ -1,0 +1,165 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Weapons Tech Tree & Arsenal Guide — ClickWar.app"
+  description="Explore the military weapons tech tree in ClickWar. Learn damage stats, energy costs, flight speeds, and tactical strategies for Rockets, Drones, Cruise Missiles, Nukes, and Orbital Ion Beams."
+  canonical="https://clickwar.app/weapons"
+>
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono mb-3">
+        🚀 STRATEGIC MUNITIONS & ORDNANCE
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-display font-black text-white uppercase tracking-tight">
+        Military Weapons Tech Tree
+      </h1>
+      <p class="mt-2 text-sm text-slate-400 font-sans">
+        Equip high-yield ballistic munitions to punch through fortified enemy armor and annex sovereign nations in seconds.
+      </p>
+    </div>
+
+    <!-- Tech Tree Cards -->
+    <div class="space-y-6">
+      
+      <!-- Weapon 1: Tactical Rocket -->
+      <div id="rockets" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-red-500/40 transition">
+        <div class="flex items-start gap-4">
+          <div class="text-4xl p-3 bg-red-950/60 rounded-2xl border border-red-800/40 shrink-0">
+            🚀
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-lg text-white">Tier 1: Tactical Rocket</h2>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">UNLIMITED</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 max-w-xl">
+              Standard-issue short-range tactical missile. Zero energy cost makes it ideal for building up combo meter to trigger DEFCON 1 Frenzy mode.
+            </p>
+            <div class="flex flex-wrap gap-4 mt-3 text-xs font-mono">
+              <span class="text-red-400">Damage: <strong>1 HP</strong></span>
+              <span class="text-amber-400">Cost: <strong>0 Energy</strong></span>
+              <span class="text-sky-400">Speed: <strong>Mach 2</strong></span>
+              <span class="text-emerald-400">Shortcut: <strong>[1]</strong></span>
+            </div>
+          </div>
+        </div>
+        <a href="/#game-viewport" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-display font-bold text-xs uppercase shrink-0 transition">
+          Test Fire &rarr;
+        </a>
+      </div>
+
+      <!-- Weapon 2: Stealth Drone -->
+      <div id="drones" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-amber-500/40 transition">
+        <div class="flex items-start gap-4">
+          <div class="text-4xl p-3 bg-amber-950/60 rounded-2xl border border-amber-800/40 shrink-0">
+            🛸
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-lg text-white">Tier 2: Stealth Kamikaze Drone Swarm</h2>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">LOW RADAR SIGNATURE</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 max-w-xl">
+              High-agility autonomous loitering munition. Flies low to evade basic air defenses, delivering 5x the baseline impact of standard rockets.
+            </p>
+            <div class="flex flex-wrap gap-4 mt-3 text-xs font-mono">
+              <span class="text-red-400">Damage: <strong>5 HP</strong></span>
+              <span class="text-amber-400">Cost: <strong>30 Energy</strong></span>
+              <span class="text-sky-400">Speed: <strong>Mach 3.5</strong></span>
+              <span class="text-emerald-400">Shortcut: <strong>[2]</strong></span>
+            </div>
+          </div>
+        </div>
+        <a href="/#game-viewport" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-display font-bold text-xs uppercase shrink-0 transition">
+          Test Fire &rarr;
+        </a>
+      </div>
+
+      <!-- Weapon 3: Hypersonic Cruise -->
+      <div id="hypersonic" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-sky-500/40 transition">
+        <div class="flex items-start gap-4">
+          <div class="text-4xl p-3 bg-sky-950/60 rounded-2xl border border-sky-800/40 shrink-0">
+            ⚡
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-lg text-white">Tier 3: Hypersonic Glide Cruise Missile</h2>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">ARMOR PIERCING</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 max-w-xl">
+              Mach 8 scramjet cruise missile engineered to punch directly through heavy country armor plating, dealing massive kinetic trauma.
+            </p>
+            <div class="flex flex-wrap gap-4 mt-3 text-xs font-mono">
+              <span class="text-red-400">Damage: <strong>25 HP</strong></span>
+              <span class="text-amber-400">Cost: <strong>150 Energy</strong></span>
+              <span class="text-sky-400">Speed: <strong>Mach 8</strong></span>
+              <span class="text-emerald-400">Shortcut: <strong>[3]</strong></span>
+            </div>
+          </div>
+        </div>
+        <a href="/#game-viewport" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-display font-bold text-xs uppercase shrink-0 transition">
+          Test Fire &rarr;
+        </a>
+      </div>
+
+      <!-- Weapon 4: Tactical Nuclear Warhead -->
+      <div id="nuke" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-rose-500/40 transition">
+        <div class="flex items-start gap-4">
+          <div class="text-4xl p-3 bg-rose-950/60 rounded-2xl border border-rose-800/40 shrink-0">
+            ☢️
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-lg text-white">Tier 4: Tactical Nuclear Warhead</h2>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">MASS DESTRUCTION</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 max-w-xl">
+              Strategic atomic warhead delivering an overwhelming thermal blast wave. Decimates enemy defense garrisons and leaves an ionized blast crater.
+            </p>
+            <div class="flex flex-wrap gap-4 mt-3 text-xs font-mono">
+              <span class="text-red-400">Damage: <strong>150 HP</strong></span>
+              <span class="text-amber-400">Cost: <strong>600 Energy</strong></span>
+              <span class="text-sky-400">Speed: <strong>Mach 5</strong></span>
+              <span class="text-emerald-400">Shortcut: <strong>[4]</strong></span>
+            </div>
+          </div>
+        </div>
+        <a href="/#game-viewport" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-display font-bold text-xs uppercase shrink-0 transition">
+          Test Fire &rarr;
+        </a>
+      </div>
+
+      <!-- Weapon 5: Orbital Ion Cannon -->
+      <div id="ion" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-cyan-500/40 transition">
+        <div class="flex items-start gap-4">
+          <div class="text-4xl p-3 bg-cyan-950/60 rounded-2xl border border-cyan-800/40 shrink-0">
+            🛰️
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-lg text-white">Tier 5: Orbital Ion Cannon Strike</h2>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">ULTIMATE WEAPON</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 max-w-xl">
+              Space-based satellite particle accelerator firing a concentrated relativistic particle beam. Instantaneous strike delivering catastrophic 1,000 HP damage.
+            </p>
+            <div class="flex flex-wrap gap-4 mt-3 text-xs font-mono">
+              <span class="text-red-400">Damage: <strong>1,000 HP</strong></span>
+              <span class="text-amber-400">Cost: <strong>2,500 Energy</strong></span>
+              <span class="text-sky-400">Speed: <strong>Speed of Light</strong></span>
+              <span class="text-emerald-400">Shortcut: <strong>[5]</strong></span>
+            </div>
+          </div>
+        </div>
+        <a href="/#game-viewport" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-display font-bold text-xs uppercase shrink-0 transition">
+          Test Fire &rarr;
+        </a>
+      </div>
+
+    </div>
+  </section>
+</Layout>
