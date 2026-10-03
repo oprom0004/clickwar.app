@@ -138,15 +138,15 @@ const currentPath = Astro.url.pathname;
 <body class="min-h-screen flex flex-col selection:bg-red-500 selection:text-white">
 
   <!-- TOP LIVE DEFCON / WAR TICKER -->
-  <div class="w-full bg-red-950/40 border-b border-red-500/20 text-xs py-1.5 px-4 backdrop-blur-md">
+  <div class="w-full bg-red-950/40 border-b border-red-500/20 text-xs py-1 px-4 backdrop-blur-md">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 font-mono text-slate-400">
       <div class="flex items-center gap-2 overflow-hidden whitespace-nowrap">
         <span class="flex h-2 w-2 relative">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
         </span>
-        <span class="text-red-400 font-bold uppercase tracking-wider">LIVE DEFCON 1:</span>
-        <div id="live-ticker-text" class="text-slate-300 truncate">
+        <span class="text-red-400 font-bold uppercase tracking-wider text-[11px]">DEFCON 1:</span>
+        <div id="live-ticker-text" class="text-slate-300 truncate text-[11px]">
           Global conflict raging across 200+ territories — 1,420,890 missiles fired today!
         </div>
       </div>
@@ -159,37 +159,36 @@ const currentPath = Astro.url.pathname;
 
   <!-- NAVIGATION HEADER -->
   <header class="sticky top-0 z-40 w-full bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-13 sm:h-14 flex items-center justify-between">
       
       <!-- Brand Logo -->
-      <a href="/" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-amber-600 p-0.5 shadow-lg group-hover:shadow-red-500/30 transition">
-          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-            <svg class="w-6 h-6 text-red-500 group-hover:scale-110 transition duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-red-600 to-amber-600 p-0.5 shadow-md group-hover:shadow-red-500/30 transition">
+          <div class="w-full h-full bg-slate-950 rounded-[6px] flex items-center justify-center">
+            <svg class="w-4 h-4 text-red-500 group-hover:scale-110 transition duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
             </svg>
           </div>
         </div>
         <div>
-          <div class="font-display font-black text-xl tracking-wider text-white flex items-center gap-1.5">
-            CLICK<span class="text-red-500">WAR</span><span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/40">.APP</span>
+          <div class="font-display font-black text-lg tracking-wider text-white flex items-center gap-1">
+            CLICK<span class="text-red-500">WAR</span><span class="text-[9px] bg-red-500/20 text-red-400 px-1 py-0.2 rounded border border-red-500/40">.APP</span>
           </div>
-          <div class="text-[10px] font-mono tracking-widest text-slate-400 uppercase -mt-1">Real-Time World War</div>
         </div>
       </a>
 
       <!-- Desktop Nav Links -->
-      <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
-        <a href="/" class={`px-3 py-1.5 rounded-lg transition ${currentPath === '/' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
+      <nav class="hidden md:flex items-center gap-1 text-xs font-medium">
+        <a href="/" class={`px-2.5 py-1 rounded-md transition ${currentPath === '/' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
           ⚔️ Battle Map
         </a>
-        <a href="/rankings" class={`px-3 py-1.5 rounded-lg transition ${currentPath === '/rankings' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
+        <a href="/rankings" class={`px-2.5 py-1 rounded-md transition ${currentPath === '/rankings' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
           🏆 Rankings
         </a>
-        <a href="/weapons" class={`px-3 py-1.5 rounded-lg transition ${currentPath === '/weapons' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
+        <a href="/weapons" class={`px-2.5 py-1 rounded-md transition ${currentPath === '/weapons' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
           🚀 Tech Tree
         </a>
-        <a href="/how-to-play" class={`px-3 py-1.5 rounded-lg transition ${currentPath === '/how-to-play' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
+        <a href="/how-to-play" class={`px-2.5 py-1 rounded-md transition ${currentPath === '/how-to-play' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}>
           📖 How To Play
         </a>
       </nav>

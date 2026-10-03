@@ -11,21 +11,25 @@ const topPowers = [...ALL_COUNTRIES].sort((a, b) => b.hp - a.hp).slice(0, 10);
   description="Play ClickWar online! Choose your country, launch tactical missiles, trigger DEFCON 1 Frenzy combos, conquer 200+ territories, and climb the global rankings."
   canonical="https://clickwar.app"
 >
-  <!-- HERO HEADER SECTION -->
-  <section class="py-6 text-center px-4 max-w-4xl mx-auto">
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono mb-3">
-      <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-      GLOBAL CAMPAIGN ACTIVE &bull; 200+ NATIONS AT WAR
+  <!-- ULTRA-COMPACT TACTICAL HERO BAR -->
+  <section class="pt-3 pb-1 text-center px-4 max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+    <div class="flex items-center gap-2">
+      <span class="flex h-2 w-2 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+      </span>
+      <h1 class="text-base sm:text-lg font-display font-black text-white tracking-wide uppercase flex items-center gap-1.5">
+        CLICK<span class="text-red-500">WAR</span> <span class="text-xs font-mono text-slate-400 font-normal">| Real-Time World War MMO</span>
+      </h1>
     </div>
-    <h1 class="text-3xl sm:text-5xl font-display font-black text-white tracking-tight uppercase">
-      Conquer The World, <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-amber-500">One Click At A Time</span>
-    </h1>
-    <p class="mt-2 text-sm sm:text-base text-slate-400 max-w-2xl mx-auto font-sans">
-      Pledge allegiance to your nation, rain tactical missiles on hostile borders, upgrade high-tech warheads, and unlock <strong class="text-red-400">DEFCON 1 Frenzy</strong> to annex the world.
-    </p>
+    <div class="text-xs font-mono text-slate-400 flex items-center gap-3">
+      <span>🎯 <strong class="text-red-400">Click enemy map</strong> to fire</span>
+      <span class="hidden md:inline text-slate-600">|</span>
+      <span class="hidden md:inline">⚡ <strong class="text-amber-400">DEFCON 1 Frenzy</strong> at 100% combo</span>
+    </div>
   </section>
 
-  <!-- GAME VIEWPORT -->
+  <!-- GAME VIEWPORT (TOP FOLD) -->
   <ClickWarGame />
 
   <!-- LIVE WAR INTEL & LEADERBOARD SECTION -->
